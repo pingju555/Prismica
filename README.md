@@ -1,6 +1,6 @@
 # Prismica
 
-> KLWP 风格 Windows 桌面小部件引擎 · A KLWP-style Windows desktop widget engine
+> Windows 桌面小部件引擎 · A Windows desktop widget engine
 
 Prismica 是一个基于 **.NET 8 + WPF** 构建的 Windows 桌面小部件引擎，设计灵感来自 KLWP（Kustom Live Wallpaper）与 Rainmeter。你用一套声明式的 `.pri` 文本格式描述组件（时钟、CPU 进度条、天气、音乐控制、便签、桌面图标格、动态壁纸等），引擎在桌面之上以**透明覆盖窗口**渲染，并支持点击穿透、多组件叠加、主题换肤、动画、多屏差异化、全局变量与样式继承。
 
