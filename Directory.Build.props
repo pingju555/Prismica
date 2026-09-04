@@ -58,9 +58,10 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.0" />
     <PackageReference Include="Scrutor" Version="4.2.2" />
-    <!-- 8.0.5 修 CVE-2024-30105 (GHSA-8g4q-xg66-9fp4)；8.0.8 修 CVE-2024-43485 (GHSA-hh2w-p6rv-4g7w)。
-         升到 8.0.8 以通过 NuGet 审计（NU1903 在 TreatWarningsAsErrors 下会阻断 CI restore）。 -->
-    <PackageReference Include="System.Text.Json" Version="8.0.8" />
+    <!-- 钉到 9.0.0：CI runner 的 NuGet 缓存无 8.0.8，且 9.0.0 是 CVE-2024-30105/GHSA-8g4q-xg66-9fp4
+         与 CVE-2024-43485/GHSA-hh2w-p6rv-4g7w 的修复版本（不在受影响范围），可同时通过 NuGet 审计
+         （NU1903 在 TreatWarningsAsErrors 下会阻断 CI restore）。 -->
+    <PackageReference Include="System.Text.Json" Version="9.0.0" />
     <PackageReference Include="System.Collections.Immutable" Version="8.0.0" />
   </ItemGroup>
 
