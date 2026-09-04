@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Prismica.Infra.Embeds</AssemblyName>
+    <RootNamespace>Prismica.Infra.Embeds</RootNamespace>
+    <Description>Embed-track implementations: FileIcon, Folder, Clock, MusicPlayer, ImageGallery, VideoPlayer, Todo, DynamicIcon, Web, QML, NativeHost.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Prismica.Core\Prismica.Core.csproj" />
+    <ProjectReference Include="..\Prismica.Infra.Wpf\Prismica.Infra.Wpf.csproj" />
+    <ProjectReference Include="..\Prismica.Infra.Native\Prismica.Infra.Native.csproj" />
+  </ItemGroup>
+</Project>

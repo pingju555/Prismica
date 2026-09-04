@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Prismica.Infra.Native</AssemblyName>
+    <RootNamespace>Prismica.Infra.Native</RootNamespace>
+    <Description>Win32/Shell/COM interop: desktop overlay windows, icon extraction, file system monitoring, Shell verbs, PDH, WASAPI.</Description>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Prismica.Core\Prismica.Core.csproj" />
+  </ItemGroup>
+
+</Project>

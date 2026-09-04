@@ -1,0 +1,122 @@
+<Project>
+  <!-- Prismica 统一构建属性 -->
+  <PropertyGroup>
+    <!-- 目标框架 -->
+    <TargetFramework>net8.0-windows10.0.19041.0</TargetFramework>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>12</LangVersion>
+    <TreatWarningsAsErrors>true</TreatWarningsAsErrors>
+    <WarningsNotAsErrors>CS1591</WarningsNotAsErrors> <!-- 缺 XML 注释不报错 -->
+
+    <!-- 版本信息 -->
+    <VersionPrefix>0.1.0</VersionPrefix>
+    <VersionSuffix>alpha</VersionSuffix>
+    <Authors>Prismica Team</Authors>
+    <Company>Prismica</Company>
+    <Product>Prismica Desktop Widget Engine</Product>
+    <Description>KLWP-style Windows desktop overlay widget engine</Description>
+    <Copyright>Copyright © 2026 Prismica Team</Copyright>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <PackageProjectUrl>https://github.com/prismica/prismica</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/prismica/prismica</RepositoryUrl>
+    <RepositoryType>git</RepositoryType>
+
+    <!-- 确定性构建 -->
+    <Deterministic>true</Deterministic>
+    <ContinuousIntegrationBuild Condition="'$(GITHUB_ACTIONS)' == 'true'">true</ContinuousIntegrationBuild>
+
+    <!-- 调试符号 -->
+    <DebugType>embedded</DebugType>
+    <DebugSymbols>true</DebugSymbols>
+
+    <!-- 代码分析 -->
+    <EnableNETAnalyzers>true</EnableNETAnalyzers>
+    <AnalysisLevel>latest</AnalysisLevel>
+    <EnforceCodeStyleInBuild>true</EnforceCodeStyleInBuild>
+  </PropertyGroup>
+
+  <!-- 测试项目特化 -->
+  <PropertyGroup Condition="'$(MSBuildProjectName)' == 'Prismica.Core.Tests' Or '$(MSBuildProjectName)' == 'Prismica.Infra.Tests'">
+    <IsTestProject>true</IsTestProject>
+    <IsPackable>false</IsPackable>
+  </PropertyGroup>
+
+  <!-- NuGet 包元数据（仅可打包项目） -->
+  <PropertyGroup Condition="'$(IsPackable)' != 'false' And '$(IsTestProject)' != 'true'">
+    <GeneratePackageOnBuild Condition="'$(Configuration)' == 'Release'">true</GeneratePackageOnBuild>
+    <IncludeSymbols>true</IncludeSymbols>
+    <SymbolPackageFormat>snupkg</SymbolPackageFormat>
+  </PropertyGroup>
+
+  <!-- 通用 NuGet 依赖版本 -->
+  <ItemGroup>
+    <PackageReference Include="Microsoft.Extensions.Hosting" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
+    <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.0" />
+    <PackageReference Include="Scrutor" Version="4.2.2" />
+    <PackageReference Include="System.Text.Json" Version="8.0.0" />
+    <PackageReference Include="System.Collections.Immutable" Version="8.0.0" />
+  </ItemGroup>
+
+  <!-- 测试依赖 -->
+  <ItemGroup Condition="'$(IsTestProject)' == 'true'">
+    <PackageReference Include="xunit" Version="2.9.0" />
+    <PackageReference Include="xunit.runner.visualstudio" Version="2.8.2" PrivateAssets="all" />
+    <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.10.0" />
+    <PackageReference Include="Moq" Version="4.20.70" />
+    <PackageReference Include="FluentAssertions" Version="6.12.0" />
+  </ItemGroup>
+
+  <!-- WPF 依赖（仅 Infra.Wpf 及上层）。
+       UseWPF=true 已隐式引入 Microsoft.WindowsDesktop.App.WPF FrameworkReference，
+       不要再显式写 <FrameworkReference>，否则每个 WPF 项目都会触发 NETSDK1086 警告。 -->
+  <PropertyGroup Condition="'$(MSBuildProjectName)' == 'Prismica.Infra.Wpf' Or '$(MSBuildProjectName)' == 'Prismica.Infra.Embeds' Or '$(MSBuildProjectName)' == 'Prismica.Infra.Measures' Or '$(MSBuildProjectName)' == 'Prismica.Infra.Meters' Or '$(MSBuildProjectName)' == 'Prismica.App' Or '$(MSBuildProjectName)' == 'Prismica.Ui' Or '$(MSBuildProjectName)' == 'Prismica.Desktop' Or '$(MSBuildProjectName)' == 'Prismica.Studio'">
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <!-- WinRT / Windows SDK 依赖（Infra.Native, Infra.Measures, Infra.Embeds） -->
+  <ItemGroup Condition="'$(MSBuildProjectName)' == 'Prismica.Infra.Native' Or '$(MSBuildProjectName)' == 'Prismica.Infra.Measures' Or '$(MSBuildProjectName)' == 'Prismica.Infra.Embeds'">
+  </ItemGroup>
+
+  <!-- 性能计数器 (PDH) -->
+  <ItemGroup Condition="'$(MSBuildProjectName)' == 'Prismica.Infra.Measures'">
+    <PackageReference Include="System.Diagnostics.PerformanceCounter" Version="8.0.0" />
+  </ItemGroup>
+
+  <!-- WebView2 (embed-track Web) -->
+  <ItemGroup Condition="'$(MSBuildProjectName)' == 'Prismica.Infra.Embeds'">
+    <PackageReference Include="Microsoft.Web.WebView2" Version="1.0.2651.64" />
+  </ItemGroup>
+
+  <!-- WASAPI / 音频 -->
+  <ItemGroup Condition="'$(MSBuildProjectName)' == 'Prismica.Infra.Measures'">
+    <PackageReference Include="NAudio" Version="2.2.1" />
+  </ItemGroup>
+
+  <!-- 图像处理 (Gif/缩略图) -->
+  <ItemGroup Condition="'$(MSBuildProjectName)' == 'Prismica.Infra.Meters' Or '$(MSBuildProjectName)' == 'Prismica.Infra.Embeds'">
+    <PackageReference Include="SkiaSharp" Version="2.88.7" />
+    <PackageReference Include="SkiaSharp.NativeAssets.Win32" Version="2.88.7" />
+  </ItemGroup>
+
+  <!-- Lottie (DynamicIcon) 可选：当前关闭，因其依赖 SharpDX 与 net8 不兼容，触发 NU1701-as-error -->
+  <!-- <ItemGroup Condition="'$(MSBuildProjectName)' == 'Prismica.Infra.Embeds'">
+    <PackageReference Include="LottieSharp" Version="1.0.0" />
+  </ItemGroup> -->
+
+  <!-- 发布配置 -->
+  <PropertyGroup Condition="'$(Configuration)' == 'Release'">
+    <PublishSingleFile Condition="'$(MSBuildProjectName)' == 'Prismica.Desktop' Or '$(MSBuildProjectName)' == 'Prismica.Studio'">true</PublishSingleFile>
+    <SelfContained>true</SelfContained>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <!-- 单文件 + ReadyToRun 组合在部分环境会触发 NETSDK1094（缺少 crossgen2 主机包）。
+         自包含单文件冷启已足够快，关闭 R2R 以保证发布在各环境可复现成功。 -->
+    <PublishReadyToRun>false</PublishReadyToRun>
+    <PublishTrimmed>false</PublishTrimmed> <!-- 首发不开启 Trim，后续可开启 -->
+    <IncludeNativeLibrariesForSelfExtract>true</IncludeNativeLibrariesForSelfExtract>
+  </PropertyGroup>
+</Project>

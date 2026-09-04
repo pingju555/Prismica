@@ -1,0 +1,81 @@
+# Build outputs
+bin/
+obj/
+out/
+publish/
+*.exe
+*.dll
+*.pdb
+*.xml
+
+# IDE / Editor
+.vs/
+.idea/
+*.suo
+*.user
+*.sln.docstates
+*.swp
+*.swo
+*~
+
+# OS
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+.DS_Store
+
+# NuGet
+packages/
+*.nupkg
+*.snupkg
+
+# Test results
+TestResults/
+*.trx
+*.coverage
+*.cobertura.xml
+
+# Publish
+publish/
+dist/
+*.exe.config
+
+# Logs
+*.log
+logs/
+
+# Local config
+appsettings.Development.json
+appsettings.Local.json
+*.local.*
+
+# Temporary
+*.tmp
+*.temp
+temp/
+
+# CsWin32 generated
+**/Generated/
+
+# BenchmarkDotNet
+BenchmarkDotNet.Artifacts/
+
+# Rider
+.idea/
+
+# VS Code
+.vscode/
+*.code-workspace
+
+# Windows
+*.lnk
+
+# Non-Prismica / local-only (kept out of the repo)
+lumen-main/
+外部参考项目/
+参考网址md/
+Log日志/
+.workbuddy/
+.obsidian/
+prismica/
+HANDOFF.md

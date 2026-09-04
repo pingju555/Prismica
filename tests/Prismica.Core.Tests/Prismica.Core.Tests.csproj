@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Prismica.Core.Tests</AssemblyName>
+    <RootNamespace>Prismica.Core.Tests</RootNamespace>
+    <TargetFramework>net8.0</TargetFramework>
+    <Description>Core 纯单测：解析器、公式引擎、调度器、组件模型、参数 schema、持久化 DTO、零 WPF/PInvoke。</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Prismica.Core\Prismica.Core.csproj" />
+  </ItemGroup>
+</Project>

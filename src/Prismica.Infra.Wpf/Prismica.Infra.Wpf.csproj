@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Prismica.Infra.Wpf</AssemblyName>
+    <RootNamespace>Prismica.Infra.Wpf</RootNamespace>
+    <Description>WPF rendering implementations: IRenderHost, IFrameScheduler, base visual classes, brush/color mappers.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Prismica.Core\Prismica.Core.csproj" />
+    <ProjectReference Include="..\Prismica.Infra.Native\Prismica.Infra.Native.csproj" />
+  </ItemGroup>
+</Project>

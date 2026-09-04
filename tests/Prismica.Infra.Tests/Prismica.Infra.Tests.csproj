@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Prismica.Infra.Tests</AssemblyName>
+    <RootNamespace>Prismica.Infra.Tests</RootNamespace>
+    <Description>Infra 集成测：WPF 渲染、Win32 原生层、Measure/Meter/Embed 实现、需真实 Windows 环境。</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\src\Prismica.Core\Prismica.Core.csproj" />
+    <ProjectReference Include="..\..\src\Prismica.Infra.Wpf\Prismica.Infra.Wpf.csproj" />
+    <ProjectReference Include="..\..\src\Prismica.Infra.Native\Prismica.Infra.Native.csproj" />
+    <ProjectReference Include="..\..\src\Prismica.Infra.Embeds\Prismica.Infra.Embeds.csproj" />
+    <ProjectReference Include="..\..\src\Prismica.Infra.Measures\Prismica.Infra.Measures.csproj" />
+    <ProjectReference Include="..\..\src\Prismica.Infra.Meters\Prismica.Infra.Meters.csproj" />
+    <ProjectReference Include="..\..\src\Prismica.App\Prismica.App.csproj" />
+  </ItemGroup>
+</Project>

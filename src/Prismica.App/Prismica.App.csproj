@@ -1,0 +1,20 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Prismica.App</AssemblyName>
+    <RootNamespace>Prismica.App</RootNamespace>
+    <OutputType>Library</OutputType>
+    <UseWPF>true</UseWPF>
+    <UseWindowsForms>true</UseWindowsForms>
+    <Description>Composition root: Generic Host builder, service registration, startup pipeline, IHostedService background sampling, command dispatch.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Prismica.Core\Prismica.Core.csproj" />
+    <ProjectReference Include="..\Prismica.Infra.Wpf\Prismica.Infra.Wpf.csproj" />
+    <ProjectReference Include="..\Prismica.Infra.Native\Prismica.Infra.Native.csproj" />
+    <ProjectReference Include="..\Prismica.Infra.Embeds\Prismica.Infra.Embeds.csproj" />
+    <ProjectReference Include="..\Prismica.Infra.Measures\Prismica.Infra.Measures.csproj" />
+    <ProjectReference Include="..\Prismica.Infra.Meters\Prismica.Infra.Meters.csproj" />
+  </ItemGroup>
+
+</Project>

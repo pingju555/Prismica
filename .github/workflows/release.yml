@@ -1,0 +1,83 @@
+name: Release
+
+# Triggers:
+#   - push of a tag like v0.1.0-alpha  -> builds + signs (if secrets set) + publishes GitHub Release
+#   - manual "Run workflow"            -> toggle the "sign" checkbox to also sign
+#
+# Required secrets (repo Settings > Secrets and variables > Actions):
+#   SIGNING_CERT_PFX      Base64 of a PFX code-signing certificate
+#   SIGNING_CERT_PASSWORD Password for that PFX
+# (If omitted, the build still produces an UNSIGNED installer and skips signing.)
+#
+# Modern alternative to a bought PFX: Azure Trusted Signing. See docs/CI_CD.md
+# for a drop-in replacement of the signing step (no certificate to manage).
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+    inputs:
+      sign:
+        description: 'Sign artifacts (requires SIGNING_CERT_PFX + SIGNING_CERT_PASSWORD secrets)'
+        type: boolean
+        default: false
+
+permissions:
+  contents: write   # needed to create a GitHub Release
+
+jobs:
+  build-release:
+    name: Build Installer
+    runs-on: windows-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup .NET 8
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Install Inno Setup
+        shell: pwsh
+        run: choco install innosetup -y
+
+      - name: Add Inno Setup to PATH
+        shell: pwsh
+        run: |
+          $p = "C:\Program Files (x86)\Inno Setup 6"
+          if (Test-Path $p) { "$p" | Out-File -Append -FilePath $env:GITHUB_PATH }
+
+      - name: Restore (win-x64)
+        run: dotnet restore Prismica.sln -r win-x64
+
+      - name: Decode signing certificate
+        if: ${{ (github.event.inputs.sign == 'true' || startsWith(github.ref, 'refs/tags/')) && secrets.SIGNING_CERT_PFX != '' }}
+        shell: pwsh
+        run: |
+          $bytes = [System.Convert]::FromBase64String("${{ secrets.SIGNING_CERT_PFX }}")
+          Set-Content -Path "$env:RUNNER_TEMP\prismica.pfx" -Value $bytes -AsByteStream
+
+      - name: Publish + Installer (+ Sign)
+        shell: pwsh
+        run: |
+          $args = @('-Configuration', 'Release', '-Runtime', 'win-x64')
+          $wantSign = ("${{ github.event.inputs.sign }}" -eq 'true') -or "${{ startsWith(github.ref, 'refs/tags/') }}" -eq 'True'
+          if ($wantSign -and "${{ secrets.SIGNING_CERT_PFX }}" -ne '') {
+            $args += @('-Sign', '-CertFile', "$env:RUNNER_TEMP\prismica.pfx", '-CertPassword', "${{ secrets.SIGNING_CERT_PASSWORD }}")
+          }
+          ./build/Publish.ps1 @args
+
+      - name: Upload installer artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Prismica-setup
+          path: 'dist/Prismica-*-setup.exe'
+
+      - name: Create GitHub Release
+        if: startsWith(github.ref, 'refs/tags/')
+        uses: softprops/action-gh-release@v2
+        with:
+          files: 'dist/Prismica-*-setup.exe'
+          generate_release_notes: true

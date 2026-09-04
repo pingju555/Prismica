@@ -1,0 +1,42 @@
+{
+  "metadata": [
+    {
+      "src": [
+        {
+          "files": ["**/*.csproj"],
+          "exclude": ["**/bin/**", "**/obj/**", "**/tests/**", "**/Generated/**"],
+          "src": "src"
+        }
+      ],
+      "dest": "api",
+      "properties": {
+        "TargetFramework": "net9.0-windows10.0.19041.0"
+      }
+    }
+  ],
+  "build": {
+    "content": [
+      {
+        "files": ["**/*.md", "**/*.yml"],
+        "exclude": ["**/obj/**", "**/bin/**"],
+        "src": "docs"
+      }
+    ],
+    "dest": "site",
+    "template": ["default"],
+    "globalMetadata": {
+      "_appTitle": "Prismica Documentation",
+      "_appName": "Prismica",
+      "_enableSearch": true,
+      "_gitContribute": {
+        "repo": "https://github.com/prismica/prismica",
+        "branch": "main"
+      }
+    },
+    "fileMetadata": {
+      "README.md": {
+        "tocPath": "Home"
+      }
+    }
+  }
+}

@@ -1,0 +1,13 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Prismica.Ui</AssemblyName>
+    <RootNamespace>Prismica.Ui</RootNamespace>
+    <OutputType>Library</OutputType>
+    <Description>Shared UI primitives: converters, behaviors, attached properties, theme tokens, base ViewModel, validation, preview canvas.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Prismica.Core\Prismica.Core.csproj" />
+    <ProjectReference Include="..\Prismica.Infra.Wpf\Prismica.Infra.Wpf.csproj" />
+  </ItemGroup>
+</Project>

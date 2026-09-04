@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Prismica.Infra.Meters</AssemblyName>
+    <RootNamespace>Prismica.Infra.Meters</RootNamespace>
+    <Description>data-track Meter implementations: String, TextBlock, GlyphRun, Shape, Line, Polygon, Arc, Image, Gif, Video, Camera, Progress, Histogram, LineGraph, Gauge, Button, Slider, Toggle, Container, ScrollViewer, ItemsRepeater, Icon, ColorPicker, WebView, ShaderEffect, Particle.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Prismica.Core\Prismica.Core.csproj" />
+    <ProjectReference Include="..\Prismica.Infra.Wpf\Prismica.Infra.Wpf.csproj" />
+  </ItemGroup>
+</Project>

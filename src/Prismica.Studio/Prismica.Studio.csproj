@@ -1,0 +1,23 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Prismica.Studio</AssemblyName>
+    <RootNamespace>Prismica.Studio</RootNamespace>
+    <OutputType>WinExe</OutputType>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Description>Prismica Studio 编辑器（附加）：所见即所得组件编辑器、三态字段、公式校验/预览、拖拽画布、参数 Schema 设计器、AI 辅助生成、导出 .pri、实时预览复用 Desktop 渲染管线。</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Prismica.App\Prismica.App.csproj" />
+    <ProjectReference Include="..\Prismica.Ui\Prismica.Ui.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="appsettings.Development.json" CopyToOutputDirectory="PreserveNewest" Condition="Exists('appsettings.Development.json')" />
+  </ItemGroup>
+</Project>

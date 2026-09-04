@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Prismica.Core</AssemblyName>
+    <RootNamespace>Prismica.Core</RootNamespace>
+    <TargetFramework>net8.0</TargetFramework>
+    <Description>Core domain: parsing, formulas, scheduling, component contracts, persistence DTOs. Zero WPF/PInvoke.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Core 无额外框架依赖，仅标准库 + Microsoft.Extensions.* (已在 Directory.Build.props) -->
+  </ItemGroup>
+
+  <!-- 公开 API 约定：生成 .PublicApi 供 API 兼容性检查 -->
+  <PropertyGroup>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+  </PropertyGroup>
+</Project>

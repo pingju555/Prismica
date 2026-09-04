@@ -1,0 +1,27 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Prismica.Desktop</AssemblyName>
+    <RootNamespace>Prismica.Desktop</RootNamespace>
+    <OutputType>WinExe</OutputType>
+    <ApplicationManifest>app.manifest</ApplicationManifest>
+    <Description>Prismica Desktop 本体：桌面遮罩/穿透/多屏、布局模式/桌面模式、data-track+embed-track 渲染、参数面板、热加载 .pri、托盘/自启/崩溃兜底。</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Prismica.App\Prismica.App.csproj" />
+    <ProjectReference Include="..\Prismica.Ui\Prismica.Ui.csproj" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Resource Include="Assets\**" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="Assets\Samples\*.pri" CopyToOutputDirectory="PreserveNewest" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="appsettings.json" CopyToOutputDirectory="PreserveNewest" />
+    <None Include="appsettings.Development.json" CopyToOutputDirectory="PreserveNewest" Condition="Exists('appsettings.Development.json')" />
+  </ItemGroup>
+</Project>

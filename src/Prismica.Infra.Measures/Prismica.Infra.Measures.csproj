@@ -1,0 +1,12 @@
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <AssemblyName>Prismica.Infra.Measures</AssemblyName>
+    <RootNamespace>Prismica.Infra.Measures</RootNamespace>
+    <Description>data-track Measure implementations: Time, CPU, Memory, Net, Disk, Battery, System, Media, Audio, Window, Calc, Script, Plugin, PerfCounter, UsageMonitor, FileView, FolderInfo, Registry, WebParser, Ping.</Description>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\Prismica.Core\Prismica.Core.csproj" />
+    <ProjectReference Include="..\Prismica.Infra.Native\Prismica.Infra.Native.csproj" />
+  </ItemGroup>
+</Project>
