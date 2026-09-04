@@ -48,7 +48,11 @@ public sealed class DefaultFrameScheduler : IFrameScheduler
 
     private void RemoveCallback(FrameCallback entry)
     {
-        lock (_callbacks) { _callbacks.Remove(entry); }
+        lock (_callbacks)
+        {
+            entry.IsRemoved = true;
+            _callbacks.Remove(entry);
+        }
     }
 
     public AnimationHandle RegisterAnimation(AnimationDefinition def)
@@ -98,6 +102,7 @@ public sealed class DefaultFrameScheduler : IFrameScheduler
 
         foreach (var cb in callbacksCopy)
         {
+            if (cb.IsRemoved) continue;
             try { cb.Callback(ctx); } catch { /* swallow */ }
         }
 
@@ -149,6 +154,7 @@ public sealed class DefaultFrameScheduler : IFrameScheduler
     {
         public Action<FrameContext> Callback { get; } = callback;
         public FramePriority Priority { get; } = priority;
+        public volatile bool IsRemoved;
     }
 
     private sealed class CallbackDisposable(Action dispose) : IDisposable
