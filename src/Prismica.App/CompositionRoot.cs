@@ -176,7 +176,8 @@ public sealed class WallpaperOptions
 
     /// <summary>
     /// 壁纸模式：<c>Component</c>（默认，加载 <see cref="Path"/> 指定的 .pri 组件）或
-    /// <c>Image</c>（加载 <see cref="ImagePath"/> 指定的 PNG，并基于其 alpha 通道做逐像素透明穿透遮罩）。
+    /// <c>Image</c>（加载 <see cref="ImagePath"/> 指定的本地媒体，按扩展名自动识别）。
+    /// PNG 走 alpha 通道逐像素透明穿透遮罩；GIF / MP4 / WebM / AVI 等全屏播放且整窗点击穿透（无需预计算遮罩）。
     /// </summary>
     public string? Mode { get; set; } = "Component";
 
@@ -187,8 +188,9 @@ public sealed class WallpaperOptions
     public string? Path { get; set; }
 
     /// <summary>
-    /// 图片壁纸路径（Mode=Image 时必填）。应为带 alpha 通道的 PNG；
-    /// 加载时扫描其 alpha 构建遮罩，完全透明区域点击穿透、非透明区域接收点击。
+    /// 壁纸媒体路径（Mode=Image 时必填）。支持 PNG（带 alpha 通道，逐像素透明穿透遮罩）、
+    /// GIF（逐帧动画，整窗点击穿透）、MP4/WebM/AVI/MOV 等视频（全屏循环播放，整窗点击穿透）。
+    /// GIF/视频不预计算遮罩。
     /// </summary>
     public string? ImagePath { get; set; }
 }

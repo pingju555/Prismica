@@ -132,7 +132,19 @@
 - **单元测试**：`tests/.../Styling/MeterStyleTests.cs`（8 项：单样式合并+覆盖/多样式后者覆盖+自身胜/嵌套继承/未知样式报告+自身仍生效/环检测不死循环/无引用等于自身/大小写不敏感/解析器+解析器产出端到端）+ `tests/.../App/ComponentRuntimeTests.cs` 2 项运行时断言（meter.Style 反映合并、未知样式诊断）。
 - **验证**：沙箱 `dotnet build/test --no-restore` 0 错误 / 310/310 全绿（Core 289 + Infra 21；+10 项 MeterStyle 测试）。纯解析+运行时构造，无需桌面会话，已单测覆盖。`.pri` 语法：`[MeterStyleTitle] FontColor=#FFFF0000` + `[MeterTitle] Meter=String MeterStyle=Title FontColor=#FF00FF00`（后者覆盖前者）。
 
+## #37 动态壁纸 GIF/MP4 支持（已完成）
+- **需求来源**：用户指出 `#31 动态壁纸层` 实际只支持 PNG，真要"动态"还需 GIF/MP4。约束：**GIF/MP4 不预计算 alpha 遮罩**（与 PNG 的逐像素遮罩穿透不同）。
+- **纯逻辑**：`Core/Wallpaper/WallpaperMediaKind.cs`：`WallpaperMediaKind` 枚举（Png/Gif/Video）+ `WallpaperMediaKindExtensions.FromPath(path)` 按扩展名识别（png→Png；gif→Gif；mp4/webm/avi/mkv/mov/m4v→Video；未知→Png 向后兼容）。
+- **接线**：`WallpaperLayerWindow` 新增 `SetMedia(path, virtualBounds)` 统一入口按 Kind 分派；`SetGif`（GifBitmapDecoder 取帧 + DispatcherTimer 按每帧 `/grctlext/Delay` 元数据换帧，单帧直显）+ `SetVideo`（MediaElement 全屏循环播放，MediaEnded→Position=Zero）；GIF/视频**不设 `_mask`、不置 `_root`** → `WM_NCHITTEST` 在无遮罩/无组件根时默认返回 HTTRANSPARENT，整窗点击穿透（无需预计算遮罩）；`SetImage`(PNG+alpha 遮罩) 路径完全不变。`DesktopHostedService.CreateWallpaperLayer` 改调 `SetMedia`；`Dispose` 补 `_gifTimer.Stop()` + `_media.Close()`。
+- **单元测试**：`tests/.../Wallpaper/WallpaperMediaKindTests.cs`（10 项扩展名→Kind 理论测试，纯逻辑、无 WPF）。
+- **验证**：沙箱 `dotnet build/test --no-restore` 0 错误 / 326/326 全绿（Core 304 + Infra 22；+10 项媒体类型测试）。GIF/MP4 真实播放需 MediaFoundation + 桌面会话，沙箱仅编译验证，待用户本机验证。`.desktop` 配置：`Wallpaper:Mode=Image` + `Wallpaper:ImagePath=xxx.gif|xxx.mp4`。
 
+## #38 Internal Z-Index 运行时层级（已完成）
+- **需求来源**：用户问"同位置下多个组件是否可用 Internal Z-Index 区分层级"。调研发现 `ComponentInstance.ZIndex` 字段已存在且序列化（`IniLayoutSerializer` 读写 `ZIndex=`），但运行时从未消费——`SetZOrder(IntPtr)` 在 `WpfOverlayWindow`/`WallpaperLayerWindow` 均有定义却**从未被调用**，覆盖窗口实际按创建顺序叠放。
+- **纯逻辑**：`Core/Layout/ZOrderArranger.cs`：`Order(IEnumerable<(IOverlayWindow Window, int ZIndex)>)` 升序稳定排序（ZIndex 升序、相同保创建顺序），返回应按 `SetZOrder(HWND_TOP)` 调用的窗口序列（最高 ZIndex 最后→置顶）。
+- **接线**：`DesktopHostedService` 新增 `ApplyZOrder()`——取所有覆盖窗口及其实例 ZIndex（无实例取 0），按 `ZOrderArranger.Order` 升序依次 `SetZOrder(IntPtr.Zero)`（HWND_TOP，在 TOPMOST 段内逐置顶）；调用点：实例加载循环后、`AddComponentToLayout` 末尾、`RemoveComponentLive` 末尾。壁纸层非 TOPMOST，不参与。
+- **单元测试**：`tests/.../Layout/ZOrderArrangerTests.cs`（4 项：升序 ZIndex→调用次序、同 ZIndex 保序、null 输入空、模拟 ApplyZOrder 调用语义最高 ZIndex 最后置顶）。
+- **验证**：沙箱 326/326 全绿（+4 项）。真实置顶需桌面会话，沙箱仅验证排序逻辑，待用户本机验证。同位置多组件现可经 `layout.ini` 的 `ZIndex=` 或属性面板（规划中）区分前后层级。
 
 ## 关键文件地图
 
@@ -150,7 +162,7 @@
 
 ```powershell
 dotnet build Prismica.sln -c Debug    # 0 错误
-dotnet test Prismica.sln -c Debug     # 311/311 全绿（Core 289 + Infra 22）
+dotnet test Prismica.sln -c Debug     # 326/326 全绿（Core 304 + Infra 22）
 ```
 
 > 沙箱/CI 环境注意：若 `dotnet` 进程无法解析机器级 NuGet 配置目录（`ProgramData` 等特殊文件夹为空）导致 restore 报 `Value cannot be null (path1)`，用 `dotnet build/test ... --no-restore`（项目已有本地 `obj/project.assets.json` 与 nuget 缓存）。真实 Windows 上正常 restore。

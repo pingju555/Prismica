@@ -4,6 +4,7 @@ using System.Windows.Controls;
 using System.Windows.Interop;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
+using System.Windows.Threading;
 using Prismica.Core.Native;
 using Prismica.Core.Primitives;
 using Prismica.Core.Rendering;
@@ -30,6 +31,10 @@ public sealed class WallpaperLayerWindow : Window, IOverlayWindow
     private AlphaMask? _mask;
     private double _imgScaleX = 1;
     private double _imgScaleY = 1;
+
+    // 动画/GIF/视频媒体（无预计算遮罩，整窗点击穿透）。
+    private DispatcherTimer? _gifTimer;
+    private MediaElement? _media;
 
     public WallpaperLayerWindow(ScreenInfo screen)
     {
@@ -176,6 +181,111 @@ public sealed class WallpaperLayerWindow : Window, IOverlayWindow
         _root = null; // 图片模式下不再使用组件内容矩形判定
     }
 
+    /// <summary>
+    /// 媒体壁纸统一入口：按扩展名分派到 PNG / GIF / 视频。GIF 与视频均不走预计算遮罩，
+    /// 而是整窗点击穿透（<see cref="WM_NCHITTEST"/> 在无遮罩/无组件根时默认返回 HTTRANSPARENT）。
+    /// </summary>
+    public void SetMedia(string path, Prismica.Core.Primitives.Rect virtualBounds)
+    {
+        switch (WallpaperMediaKindExtensions.FromPath(path))
+        {
+            case WallpaperMediaKind.Gif:
+                SetGif(path, virtualBounds);
+                break;
+            case WallpaperMediaKind.Video:
+                SetVideo(path, virtualBounds);
+                break;
+            default:
+                SetImage(path, virtualBounds);
+                break;
+        }
+    }
+
+    /// <summary>
+    /// GIF 壁纸：逐帧动画铺满虚拟桌面，整窗点击穿透（无预计算遮罩）。
+    /// 单帧 GIF 直接显示；多帧用 DispatcherTimer 按每帧延迟元数据换帧。
+    /// </summary>
+    private void SetGif(string path, Prismica.Core.Primitives.Rect virtualBounds)
+    {
+        _mask = null;
+        _root = null;
+        _imagePath = path;
+
+        var decoder = new GifBitmapDecoder(
+            new Uri(path, UriKind.Absolute),
+            BitmapCreateOptions.PreservePixelFormat,
+            BitmapCacheOption.OnLoad);
+
+        var img = new Image
+        {
+            Stretch = Stretch.Fill,
+            Width = virtualBounds.Width,
+            Height = virtualBounds.Height
+        };
+        Content = img;
+
+        if (decoder.Frames.Count <= 1)
+        {
+            img.Source = decoder.Frames[0];
+            return;
+        }
+
+        int i = 0;
+        var timer = new DispatcherTimer { Interval = TimeSpan.FromMilliseconds(FrameDelayMs(decoder.Frames[0])) };
+        timer.Tick += (_, _) =>
+        {
+            img.Source = decoder.Frames[i];
+            i = (i + 1) % decoder.Frames.Count;
+        };
+        img.Source = decoder.Frames[0];
+        _gifTimer = timer;
+        timer.Start();
+    }
+
+    /// <summary>
+    /// 视频壁纸：MediaElement 全屏循环播放，整窗点击穿透（无预计算遮罩）。
+    /// 要求系统具备对应解码器（MP4 由 Windows 内置 Media Foundation 支持；WebM/AVI 需额外解码器）。
+    /// </summary>
+    private void SetVideo(string path, Prismica.Core.Primitives.Rect virtualBounds)
+    {
+        _mask = null;
+        _root = null;
+        _imagePath = path;
+
+        var media = new MediaElement
+        {
+            Source = new Uri(path, UriKind.Absolute),
+            LoadedBehavior = MediaState.Play,
+            UnloadedBehavior = MediaState.Manual,
+            Stretch = Stretch.Fill,
+            Width = virtualBounds.Width,
+            Height = virtualBounds.Height,
+            IsHitTestVisible = false
+        };
+        media.MediaEnded += (_, _) => { media.Position = TimeSpan.Zero; }; // 循环播放
+        Content = media;
+        _media = media;
+    }
+
+    /// <summary>读取 GIF 单帧延迟（1/100 秒，存于 /grctlext/Delay 元数据），缺省 100ms。</summary>
+    private static double FrameDelayMs(BitmapFrame frame)
+    {
+        try
+        {
+            if (frame.Metadata is BitmapMetadata meta)
+            {
+                var raw = meta.GetQuery("/grctlext/Delay");
+                if (raw is ushort delay && delay > 0)
+                    return delay * 10.0;
+            }
+        }
+        catch
+        {
+            // 忽略元数据读取失败，回落默认间隔。
+        }
+        return 100.0;
+    }
+
     /// <summary>当前是否为图片壁纸模式（已加载 alpha 遮罩）。</summary>
     public bool IsImageMode => _mask is not null;
 
@@ -186,6 +296,8 @@ public sealed class WallpaperLayerWindow : Window, IOverlayWindow
     {
         if (_disposed) return;
         _disposed = true;
+        _gifTimer?.Stop();
+        _media?.Close();
         Close();
     }
 }

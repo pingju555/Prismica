@@ -11,6 +11,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Prismica.Core.Components;
+using Prismica.Core.Layout;
 using Prismica.Core.Formula;
 using Prismica.Core.Native;
 using Prismica.Core.Parameters;
@@ -178,6 +179,9 @@ public sealed class DesktopHostedService : IHostedService, IDisposable
                     Probe.Line($"LAYOUT 实例 {inst.Id}: {inst.ComponentName} bounds=({inst.Bounds.X},{inst.Bounds.Y},{inst.Bounds.Width}x{inst.Bounds.Height})");
                     _logger.LogInformation("布局实例 {id}: {name} 已创建", inst.Id, inst.ComponentName);
                 }
+
+                // 实例全量创建后按 ZIndex 重排层级（同位置多组件靠 Internal Z-Index 区分前后）。
+                ApplyZOrder();
 
                 if (_wallpaperRuntime is not null && _wallpaperRoot is not null)
                 {
@@ -553,6 +557,7 @@ public sealed class DesktopHostedService : IHostedService, IDisposable
         var overlay = CreateOverlay(def, runtime, path, newBounds, screen, newInst);
         if (overlay is not null) overlay.IsSelected = true;
         SaveLayout();
+        ApplyZOrder(); // 新组件加入后重排层级
         _logger.LogInformation("已添加组件 {name} 到布局并即时渲染", component.Name);
     }
 
@@ -609,6 +614,7 @@ public sealed class DesktopHostedService : IHostedService, IDisposable
         _windowMeta.Remove(overlay);
         overlay.Dispose();
         SaveLayout();
+        ApplyZOrder(); // 移除后其余窗口层级重排
         _logger.LogInformation("已从布局移除组件实例并即时销毁窗口");
     }
 
@@ -805,6 +811,20 @@ public sealed class DesktopHostedService : IHostedService, IDisposable
     }
 
     /// <summary>
+    /// 按各实例 ZIndex 在 TOPMOST 段内重排覆盖窗口层级：升序逐一带到 HWND_TOP，
+    /// 使最高 ZIndex 的窗口最终位于最上。壁纸层非 TOPMOST，不参与。
+    /// 同位置多组件即借此 Internal Z-Index 区分前后层级。
+    /// </summary>
+    private void ApplyZOrder()
+    {
+        var items = _windows
+            .Select(w => (Window: (IOverlayWindow)w, ZIndex: _overlayInstances.TryGetValue(w, out var inst) ? inst.ZIndex : 0))
+            .ToList();
+        foreach (var window in ZOrderArranger.Order(items))
+            window.SetZOrder(IntPtr.Zero); // HWND_TOP：在当前 TOPMOST 段内置顶
+    }
+
+    /// <summary>
     /// 路线 B 壁纸层：在虚拟桌面最底层渲染一个全屏组件作为动态壁纸，并插入到桌面（Progman/WorkerW）之上。
     /// 透明区点击穿透到下层桌面（由 WallpaperLayerWindow 的 WM_NCHITTEST 内容矩形判定）。
     /// 找不到组件时仅记录警告并跳过（不影响 widget 正常运行）。
@@ -842,10 +862,10 @@ public sealed class DesktopHostedService : IHostedService, IDisposable
 
         if (imageMode)
         {
-            // 图片壁纸：加载 PNG 并预扫描 alpha 通道生成遮罩，透明区域点击穿透、非透明区域接收点击。
+            // 媒体壁纸：按扩展名分派（PNG 走 alpha 遮罩穿透；GIF/MP4/WebM 全屏播放且整窗点击穿透，无预计算遮罩）。
             try
             {
-                wallpaper.SetImage(_options.Wallpaper.ImagePath!, virtualBounds);
+                wallpaper.SetMedia(_options.Wallpaper.ImagePath!, virtualBounds);
             }
             catch (Exception ex)
             {

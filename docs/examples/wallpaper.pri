@@ -5,6 +5,11 @@
 ;       （文件名必须是 wallpaper.pri，组件名 Wallpaper，与默认壁纸组件名一致）
 ; 行为：整窗透明，只有底部/角落的时钟与 CPU 条是"内容"；
 ;       透明区域点击会穿透到桌面（图标/窗口），命中内容才被壁纸接收。
+;
+; 媒体壁纸（GIF/MP4，整窗点击穿透、不预计算遮罩）改用桌面配置，而非本 .pri：
+;   Prismica:Desktop:Wallpaper:Mode=Image
+;   Prismica:Desktop:Wallpaper:ImagePath=<绝对路径>/bg.gif        ; 或 .mp4 / .webm / .avi
+; （PNG 仍走逐像素 alpha 遮罩穿透；GIF 逐帧动画、视频全屏循环播放，二者均整窗穿透。）
 ; ============================================================
 
 [Prismica]
