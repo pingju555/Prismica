@@ -22,8 +22,10 @@ jobs:
         with:
           dotnet-version: ${{ env.DOTNET_VERSION }}
 
+      # 必须与后续 Build/Test 同为 -c Release：Directory.Build.props 在 Release 下为所有项目
+      # 注入 RuntimeIdentifier=win-x64，restore 不带配置会漏掉该 RID 目标（NETSDK1047）。
       - name: Restore
-        run: dotnet restore ${{ env.SOLUTION }}
+        run: dotnet restore ${{ env.SOLUTION }} -c Release
 
       - name: Build (Release)
         run: dotnet build ${{ env.SOLUTION }} -c Release --no-restore
