@@ -18,8 +18,8 @@
     <Description>KLWP-style Windows desktop overlay widget engine</Description>
     <Copyright>Copyright © 2026 Prismica Team</Copyright>
     <PackageLicenseExpression>MIT</PackageLicenseExpression>
-    <PackageProjectUrl>https://github.com/prismica/prismica</PackageProjectUrl>
-    <RepositoryUrl>https://github.com/prismica/prismica</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/pingju555/Prismica</PackageProjectUrl>
+    <RepositoryUrl>https://github.com/pingju555/Prismica</RepositoryUrl>
     <RepositoryType>git</RepositoryType>
 
     <!-- 确定性构建 -->
@@ -58,7 +58,9 @@
     <PackageReference Include="Microsoft.Extensions.Configuration.Json" Version="8.0.0" />
     <PackageReference Include="Microsoft.Extensions.Configuration.Binder" Version="8.0.0" />
     <PackageReference Include="Scrutor" Version="4.2.2" />
-    <PackageReference Include="System.Text.Json" Version="8.0.0" />
+    <!-- 8.0.5 修 CVE-2024-30105 (GHSA-8g4q-xg66-9fp4)；8.0.8 修 CVE-2024-43485 (GHSA-hh2w-p6rv-4g7w)。
+         升到 8.0.8 以通过 NuGet 审计（NU1903 在 TreatWarningsAsErrors 下会阻断 CI restore）。 -->
+    <PackageReference Include="System.Text.Json" Version="8.0.8" />
     <PackageReference Include="System.Collections.Immutable" Version="8.0.0" />
   </ItemGroup>
 
